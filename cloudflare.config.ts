@@ -2,7 +2,7 @@ import { bindings, defineConfig, defineWorker } from "cf/config";
 
 export default defineConfig({
   worker: defineWorker({
-    name: "creator-command-center",
+    name: "creators-command-center",
     entrypoint: "vinext/server/fetch-handler",
     compatibilityDate: "2026-10-01",
     compatibilityFlags: ["nodejs_compat"],

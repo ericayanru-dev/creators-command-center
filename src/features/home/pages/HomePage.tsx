@@ -36,7 +36,7 @@ export const HomePage: React.FC = () => {
               CC
             </div>
             <span className="font-bold text-base tracking-tight text-slate-900 dark:text-slate-100">
-              Creator Command Centers
+              Creator Command Center
             </span>
           </div>
 
