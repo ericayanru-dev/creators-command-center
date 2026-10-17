@@ -1,6 +1,6 @@
-import { test, describe } from 'node:test';
+import { test, describe } from '@jest/globals';
 import assert from 'node:assert/strict';
-import { SettingsService } from "@/lib/services/settings/settingsService";
+import { SettingsService } from '@/lib/services/settings/settingsService';
 
 describe('SettingsService and Notification Preferences', () => {
   test('getNotificationPreferences returns valid preference flags', async () => {

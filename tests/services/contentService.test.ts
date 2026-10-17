@@ -1,6 +1,6 @@
-import { test, describe } from 'node:test';
+import { test, describe } from '@jest/globals';
 import assert from 'node:assert/strict';
-import { ContentService } from "@/lib/services/content/contentService";
+import { ContentService } from '@/lib/services/content/contentService';
 import { ContentStatus } from '@/types';
 
 describe('ContentService Lifecycle and Creation', () => {

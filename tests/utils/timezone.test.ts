@@ -1,4 +1,4 @@
-import { test, describe } from 'node:test';
+import { test, describe } from '@jest/globals';
 import assert from 'node:assert/strict';
 import {
   getUserTimezone,
@@ -6,7 +6,7 @@ import {
   utcIsoToLocalDateTime,
   getTimezoneLabel,
   DEMO_DEFAULT_TIMEZONE,
-} from "@/lib/utils/timezone";
+} from '@/lib/utils/timezone';
 import { User } from '@/types';
 
 describe('Timezone Utilities', () => {
