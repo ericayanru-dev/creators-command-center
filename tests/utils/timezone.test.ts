@@ -5,7 +5,6 @@ import {
   localDateTimeToUtcIso,
   utcIsoToLocalDateTime,
   getTimezoneLabel,
-  DEMO_DEFAULT_TIMEZONE,
 } from '@/lib/utils/timezone';
 import { User } from '@/types';
 
