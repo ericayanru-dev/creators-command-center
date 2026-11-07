@@ -1,6 +1,6 @@
-import { test, describe } from 'node:test';
+import { test, describe } from '@jest/globals';
 import assert from 'node:assert/strict';
-import { PublishingService } from "@/lib/services/publishing/publishingService";
+import { PublishingService } from '@/lib/services/publishing/publishingService';
 import { ContentService } from '@/lib/services/content/contentService';
 import { publishingRepository } from '@/lib/repositories/publishingRepository';
 

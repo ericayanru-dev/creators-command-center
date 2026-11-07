@@ -1,6 +1,6 @@
-import { test, describe } from 'node:test';
+import { test, describe } from '@jest/globals';
 import assert from 'node:assert/strict';
-import { TaskService } from "@/lib/services/tasks/taskService";
+import { TaskService } from '@/lib/services/tasks/taskService';
 
 describe('TaskService CRUD and State Management', () => {
   test('createTask creates a task with default open status and specified priority', async () => {
