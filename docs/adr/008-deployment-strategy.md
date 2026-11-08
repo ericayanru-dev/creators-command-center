@@ -13,7 +13,7 @@ Accepted
 Creator Command Center consists of multiple runtime responsibilities:
 
 -   Next.js frontend.
--   Hono API.
+-   ASP.NET Core Web API.
 -   PostgreSQL database.
 -   Cloudflare R2 for temporary/required media storage.
 -   Trigger.dev Tasks / Runs for background execution.
@@ -103,7 +103,7 @@ The major runtime responsibilities are:
                              │
                              ↓
                     ┌──────────────────┐
-                    │    Hono API      │
+                    │    ASP.NET Core Web API      │
                     │   Application    │
                     └────────┬─────────┘
                              │
@@ -148,7 +148,7 @@ Application and execution responsibilities may be deployed
 independently:
 
 -   Next.js frontend runtime.
--   Hono API runtime.
+-   ASP.NET Core Web API runtime.
 -   Trigger.dev Task / Run execution environment.
 -   PostgreSQL database.
 -   Cloudflare R2 temporary/required media storage.
@@ -193,7 +193,7 @@ infrastructure until workload justifies it.
 Deployment infrastructure must provide:
 
 -   Separate Next.js frontend runtime.
--   Hono API runtime.
+-   ASP.NET Core Web API runtime.
 -   Trigger.dev Task / Run execution.
 -   Secure environment variables and secrets.
 -   Environment isolation.
@@ -232,7 +232,7 @@ The deployment architecture must support this sequence:
 ``` text
 Schedule Request
       ↓
-Hono API
+ASP.NET Core Web API
       ↓
 PostgreSQL Transaction
       ↓
@@ -296,8 +296,8 @@ Publications and does not replace Trigger.dev scheduled execution.
 This revision supersedes the previous deployment strategy where it
 conflicts with:
 
--   ADR-004 --- BullMQ
--   ADR-005 --- Redis
+-   ADR-002 --- Backend Architecture
+-   ADR-009 --- Trigger.dev Execution Architecture
 
 Those decisions remain historical for traceability but are not
 implementation-authoritative for MVP1.
@@ -309,7 +309,7 @@ N/A
 ## Final Decision
 
 **ACCEPTED:** Creator Command Center will deploy the Next.js frontend,
-Hono API, PostgreSQL database, temporary/required R2 media storage, and
+ASP.NET Core Web API, PostgreSQL database, temporary/required R2 media storage, and
 Trigger.dev Task / Run execution as distinct runtime responsibilities.
 PostgreSQL remains authoritative for business state, while Trigger.dev
 provides background execution. No BullMQ worker runtime or Redis

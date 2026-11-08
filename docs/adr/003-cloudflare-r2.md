@@ -125,8 +125,8 @@ The implementation must:
 ## Related Decisions
 
 - ADR-002 — Backend Architecture
-- ADR-004 — BullMQ
-- ADR-005 — Redis
+- ADR-002 — Backend Architecture
+- ADR-009 — Trigger.dev Execution Architecture
 - Security Document Baseline
 - Reliability & Error Handling
 

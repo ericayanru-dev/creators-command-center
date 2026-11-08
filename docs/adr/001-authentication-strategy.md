@@ -88,7 +88,7 @@ Use an external identity provider for authentication.
 
 Creators Command Center will use **server-managed authentication sessions**.
 
-Authentication responsibilities will remain on the backend.
+Authentication responsibilities will remain on the backend. The approved backend implementation is ASP.NET Core Web API with C#. This framework decision does not change the server-managed session model.
 
 The browser must not receive:
 

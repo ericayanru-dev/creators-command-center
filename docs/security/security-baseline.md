@@ -487,8 +487,8 @@ Trigger.dev credentials.
 This Security Baseline is the minimum security control layer for MVP1. It must remain synchronized with the authoritative architecture and implementation contracts.
 
 - **Authentication:** server-managed sessions as defined by ADR-001.
-- **Backend:** Hono + TypeScript REST API.
-- **Database:** PostgreSQL + Prisma; PostgreSQL remains authoritative for business state.
+- **Backend:** ASP.NET Core Web API + C# REST API.
+- **Database:** PostgreSQL + EF Core (Npgsql); PostgreSQL remains authoritative for business state.
 - **Execution:** Trigger.dev Task / Run for background execution; Trigger.dev is not business-state authority.
 - **Publishing model:** Content → ContentVersion / Platform Version → Publication → PublishingAttempt.
 - **Scheduling:** Publication owns scheduling state; there is no standalone Schedule entity.
@@ -792,7 +792,7 @@ The project is considered secure when the following are verified:
 - Platform integrations remain behind the Platform Adapter Contract.
 - OAuth credentials and tokens remain server-side.
 - MVP media remains temporary/required operational media, not a permanent creator media library.
-- No BullMQ or Redis architecture is introduced.
+- No BullMQ or Redis queue architecture is introduced; Trigger.dev remains the approved MVP1 execution provider.
 - No speculative MVP2/MVP3/MVP4 security infrastructure is introduced.
 
 

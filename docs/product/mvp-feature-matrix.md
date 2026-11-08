@@ -174,8 +174,8 @@ Coming Soon is a UI availability state only. It must not create future APIs, dat
 These rules apply to every detailed task in this document.
 
 1. **Frontend:** Next.js + TypeScript.
-2. **Backend:** Hono + TypeScript.
-3. **Database:** PostgreSQL + Prisma.
+2. **Backend:** ASP.NET Core Web API + C#.
+3. **Database:** PostgreSQL + EF Core (Npgsql).
 4. **Validation:** Zod.
 5. **Authentication:** server-managed sessions; browser credentials use appropriately configured HTTP-only cookies.
 6. **Execution:** Trigger.dev Tasks / Runs.
@@ -317,7 +317,7 @@ Use **Jest** for unit tests and integration tests. Do not mark a feature done be
 | Trust | Infra tests only when the feature owns Trigger.dev, R2, Trigger.dev Tasks / Runs, or health checks | `*.int.spec.ts` in the execution/infra package |
 | All | The vertical-slice integration cases listed on that feature | Same Jest suites; run in CI |
 
-**What “integration” means here:** the test boots the Hono API (or the Trigger.dev Task / Run), hits the real route, and uses a real test Postgres. Mock **external** social APIs. Do not mock your own database for integration tests.
+**What “integration” means here:** the test boots the ASP.NET Core API (or the Trigger.dev Task / Run), hits the real route, and uses a real test Postgres. Mock **external** social APIs. Do not mock your own database for integration tests.
 
 **Only test a failure mode when that feature can actually hit it.** Do not copy the full list onto every feature.
 
@@ -1274,7 +1274,7 @@ Each launch platform is implemented behind a dedicated provider adapter. Domain 
 - Create `ContentVersion` with `id`, `contentId`, `platform`, `platformAccountId?`, `caption`, `title?`, `description?`, `hashtags?`, `callToAction?`, `status`, timestamps. See **Database Design Document — §25**.
 - Create unique constraint on `(contentId, platform)`.
 - Create foreign keys to Content and optional PlatformAccount.
-- Store hashtags in the approved column type (array/jsonb/text) as specified in the Prisma schema section — **Database Design Document — §76**. Do not invent a Hashtag table.
+- Store hashtags in the approved column type (array/jsonb/text) as specified in the EF Core entity configuration and database mapping section — **Database Design Document — §76**. Do not invent a Hashtag table.
 
 ### Trust — DevOps
 - No extra infrastructure.
@@ -1464,7 +1464,7 @@ Mock the provider OAuth HTTP. Do not call real Google/TikTok/Meta in Jest.
 
 ### Eric — Database
 - Confirm token columns are encrypted or stored outside ordinary tables per **Database Design Document — §16, §71**.
-- Confirm tokens are excluded from default Prisma selects used by list/get account APIs.
+- Confirm tokens are excluded from default EF Core queries/projections used by list/get account APIs.
 - Do not put tokens in `Activity` or `Notification` payloads.
 
 ### Trust — DevOps
@@ -1811,7 +1811,7 @@ MVP1 Calendar includes:
 
 ### Trust — DevOps
 - Provision/configure Trigger.dev for every environment that executes Trigger.dev Tasks / Runs.
-- Deploy Trigger.dev Tasks / Runs through the Trigger.dev execution environment, separate from the Hono API runtime.
+- Deploy Trigger.dev Tasks / Runs through the Trigger.dev execution environment, separate from the ASP.NET Core API runtime.
 - Configure execution concurrency, environment variables, secrets, and observability.
 - Monitor execution failures and reconciliation conditions.
 - Do not operate a separate Creator CC worker process.
@@ -2525,7 +2525,7 @@ Also:
 - Validate file type/size on media.
 - Validate state transitions in domain code.
 - Reject unknown fields where the contract is strict.
-- Do not depend on Prisma throwing as the only validation.
+- Do not depend on EF Core or database exceptions as the only validation.
 
 ### Eric — Database
 - Use enums and NOT NULL / unique / foreign keys as a second line, not the first. See **Database Design Document — §63–§64**.
@@ -2548,7 +2548,7 @@ Table-drive:
 - Malformed JSON on a mutating route → 400, not 500.
 - Extra unknown fields: rejected if the contract is strict, ignored only if the API doc says so — pick one and test it.
 - Error payload matches API Docs §57–§59 (field name + message, no stack trace, no SQL).
-- Database constraint failure still returns the error envelope, not a raw Prisma dump.
+- Database constraint failure still returns the error envelope, not a raw EF Core or database exception dump.
 
 **Justice — component**
 - Empty required fields block submit.
@@ -3137,7 +3137,7 @@ Jest cannot replace staging. Split it:
 Do not reshuffle the architectural dependencies below without updating the Execution Plan.
 
 1. Foundation + security baseline
-2. PostgreSQL / Prisma + API foundation
+2. PostgreSQL / EF Core + ASP.NET Core API foundation
 3. Authentication + onboarding + ownership isolation + validation
 4. Content management
 5. Content organization + search/filtering

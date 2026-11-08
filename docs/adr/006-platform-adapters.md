@@ -106,7 +106,7 @@ Creator
 Frontend
    |
    v
-Hono API
+ASP.NET Core Web API
    |
    v
 Publishing Service
@@ -485,7 +485,7 @@ Canonical flow:
 Creator Request
       |
       v
-Hono API
+ASP.NET Core Web API
       |
       v
 Publishing Service
@@ -530,7 +530,7 @@ Creator
 Frontend
    |
    v
-Hono API
+ASP.NET Core Web API
    |
    v
 Platform Adapter
@@ -545,7 +545,7 @@ External Platform
 OAuth Callback
    |
    v
-Hono API
+ASP.NET Core Web API
    |
    v
 Platform Adapter
@@ -636,7 +636,7 @@ Frontend
 POST /api/v1/publishing
    |
    v
-Hono API
+ASP.NET Core Web API
    |
    v
 Publishing Service
@@ -1594,7 +1594,7 @@ Provider Request / Response Model
 
 The mapping must be explicit.
 
-The adapter should not simply pass an entire Prisma model or arbitrary
+The adapter should not simply pass an entire EF Core entity or arbitrary
 database object to a provider SDK.
 
 Inputs should be purpose-built DTOs or internal contract types.

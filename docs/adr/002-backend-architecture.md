@@ -2,182 +2,201 @@
 
 ## Status
 
-Accepted
+Accepted / Final / Locked
 
 ## Date
 
-2026-08-26
+2026-11-08
 
 ## Context
 
-Creators Command Center requires a backend API capable of supporting:
+Creator Command Center requires a backend API capable of supporting:
 
-- Authentication.
-- Content management.
-- Scheduling.
-- Publishing.
-- OAuth integrations.
-- Platform adapters.
-- Background jobs.
-- Media processing.
-- Database persistence.
-- External API integrations.
+- Authentication and server-managed sessions.
+- Content management and creator-owned resources.
+- Scheduling and publication lifecycle management.
+- OAuth integrations and protected provider credentials.
+- Platform adapters and external API integrations.
+- Durable background execution coordinated through Trigger.dev.
+- Media access through Cloudflare R2.
+- PostgreSQL persistence, transactions, and reconciliation.
+- Validation, authorization, observability, and operational diagnostics.
 
-The backend must remain maintainable as the product grows.
+The backend must remain maintainable as the product grows. It must provide explicit separation between domain rules, application use cases, infrastructure integrations, and HTTP delivery without introducing unnecessary distributed-system complexity.
 
-The project already uses TypeScript and the development team has experience with Express and Next.js.
+The approved frontend remains Next.js, React, and TypeScript. The backend decision is independent of the frontend language: the frontend communicates with the backend through versioned REST APIs and does not share backend implementation code.
 
-The architecture must provide clear separation of responsibilities without introducing unnecessary framework complexity.
+The project has selected C# and ASP.NET Core for the backend. This ADR records the target architecture and supersedes previous Hono/TypeScript, Express, and NestJS backend proposals.
 
 ## Options
 
-### Option 1 — NestJS
+### Option 1 — Hono with TypeScript
 
-NestJS provides strong architectural conventions, dependency injection, modules, controllers, providers, guards, pipes, and other framework-level abstractions.
+Hono provides a lightweight TypeScript HTTP framework.
 
 #### Advantages
 
-- Strong conventions.
+- Small and flexible HTTP layer.
+- Strong TypeScript ecosystem.
+- Straightforward integration with JavaScript/TypeScript libraries.
+- Familiarity from the earlier prototype and architecture work.
+
+#### Disadvantages
+
+- Would retain a TypeScript backend despite the project's decision to move backend development to C#.
+- Requires project-defined architectural conventions and boundaries.
+- Would duplicate language/runtime concerns across frontend and backend only if the project deliberately chose that arrangement; it is not the approved backend direction.
+
+### Option 2 — NestJS with TypeScript
+
+NestJS provides modules, dependency injection, controllers, providers, guards, pipes, and framework-level conventions.
+
+#### Advantages
+
+- Strong conventions and modular architecture.
 - Built-in dependency injection.
-- Modular architecture.
-- Good support for large teams.
 - Structured application lifecycle.
 
 #### Disadvantages
 
-- Additional framework abstraction.
-- Requires learning and maintaining NestJS-specific conventions.
-- Greater framework coupling.
-- The team would need to learn a framework that is not currently part of its strongest experience.
+- Retains a TypeScript backend rather than the selected C#/.NET direction.
+- Adds framework-specific abstractions and conventions.
+- Does not align with the current backend technology decision.
 
-### Option 2 — Express with Modular MVC / Layered Architecture
+### Option 3 — ASP.NET Core Web API with C#
 
-Express provides the HTTP framework while application architecture is established through explicit project conventions.
-
-#### Advantages
-
-- Existing team familiarity.
-- Small and flexible HTTP layer.
-- Excellent TypeScript ecosystem.
-- Easy integration with existing libraries.
-- Avoids unnecessary framework abstraction.
-- Allows the architecture to evolve according to application needs.
-
-#### Disadvantages
-
-- Architectural conventions are not automatically enforced.
-- Dependency injection must be introduced separately if needed.
-- Developers can bypass layers unless project rules and code review prevent it.
-- More architectural discipline is required.
-
-### Option 3 — Fastify
-
-Fastify provides a high-performance HTTP framework with strong plugin architecture.
+ASP.NET Core provides the HTTP hosting, routing, middleware, dependency-injection, configuration, authentication, authorization, and API infrastructure for a C# backend.
 
 #### Advantages
 
-- High performance.
-- Good TypeScript support.
-- Plugin-based architecture.
-- Strong schema-oriented ecosystem.
+- Aligns with the approved C#/.NET backend direction.
+- Provides a mature HTTP API and dependency-injection foundation.
+- Supports explicit modular boundaries and layered architecture.
+- Integrates with EF Core and Npgsql for PostgreSQL persistence.
+- Supports automated testing through xUnit and ASP.NET Core integration-testing facilities.
+- Provides built-in configuration, logging, health checks, authentication, and authorization capabilities.
+- Keeps backend business logic independent from the Next.js frontend.
 
 #### Disadvantages
 
-- Introduces another framework to the project.
-- Existing Express familiarity would not transfer completely.
-- The performance advantage is not currently a primary product constraint.
+- Requires C#/.NET implementation and operational knowledge.
+- Requires explicit architectural discipline to prevent controllers, application services, and infrastructure concerns from becoming coupled.
+- The team must maintain the .NET runtime, package dependencies, EF Core migrations, and deployment configuration.
 
 ## Decision
 
-Creators Command Center will use:
+Creator Command Center will use **ASP.NET Core Web API with C#** as its backend.
 
-**Express + TypeScript with a modular MVC/layered architecture.**
+The approved backend baseline is:
 
-Express will provide the HTTP server and routing foundation.
+- **Backend language:** C#.
+- **HTTP framework:** ASP.NET Core Web API.
+- **Architecture:** Modular monolith with Domain, Application, Infrastructure, and API/Host boundaries.
+- **Database:** PostgreSQL.
+- **Data access and ORM:** Entity Framework Core with the Npgsql PostgreSQL provider.
+- **Database migrations:** EF Core migrations are the sole migration authority for the C# backend.
+- **API style:** Versioned REST APIs with OpenAPI documentation.
+- **Validation:** API-boundary validation and Application-layer validation using approved .NET validation patterns.
+- **Testing:** xUnit for unit tests and ASP.NET Core integration testing with `WebApplicationFactory` where appropriate.
+- **Background execution:** Trigger.dev for the approved MVP1 execution workflows, integrated through an application-owned abstraction and Infrastructure implementation.
+- **Object storage:** Cloudflare R2 through an Infrastructure adapter where required.
 
-The application will organize functionality by domain/module rather than creating a single global collection of controllers and services.
+The backend remains a modular monolith for MVP1. This decision does not introduce microservices, Redis, BullMQ, Kafka, Kubernetes, or an always-on custom worker fleet.
 
-The architecture will generally follow:
+The general request flow is:
 
 ```text
-Request
-   ↓
-Middleware
-   ↓
-Route
-   ↓
-Controller
-   ↓
-Service
-   ↓
-Repository / Data Access
-   ↓
-Database / External Infrastructure 
+HTTP Request
+    ↓
+ASP.NET Core Middleware
+    ↓
+API Endpoint / Controller
+    ↓
+Application Use Case
+    ↓
+Domain Rules
+    ↓
+Infrastructure Interfaces / Implementations
+    ↓
+PostgreSQL / External Providers / Cloudflare R2 / Trigger.dev
 ```
+
+Dependency direction must point inward. Domain and Application code must not depend on ASP.NET Core, EF Core, Npgsql, Trigger.dev SDK details, or provider-specific HTTP clients.
+
+The Application layer defines provider-independent interfaces for infrastructure capabilities. Infrastructure supplies the implementations. In particular, the Application layer defines the execution-scheduling abstraction; the Infrastructure layer integrates with Trigger.dev using a verified supported integration mechanism. Do not assume an official .NET Trigger.dev SDK exists without verification.
+
+PostgreSQL remains authoritative for Creator Command Center business state. Trigger.dev is execution infrastructure only. Publication and PublishingAttempt remain domain-owned records; Trigger.dev run identifiers are operational metadata and must not become business identifiers.
+
+The frontend remains Next.js + React + TypeScript. Frontend TypeScript and frontend validation libraries are not replaced by this backend decision.
 
 ## Consequences
 
 ### Positive Consequences
-- Uses technologies the team already understands  
-- Reduces unnecessary framework learning  
-- Keeps the HTTP layer lightweight  
-- Provides strong separation of concerns  
-- Supports modular growth  
-- Works naturally with Next.js  
-- Allows libraries to be adopted independently  
+
+- Establishes one approved C#/.NET backend direction.
+- Separates backend implementation from frontend technology choices.
+- Provides a clear modular-monolith structure.
+- Supports PostgreSQL persistence through EF Core and Npgsql.
+- Establishes one database migration authority for the backend.
+- Supports testable application and domain logic.
+- Provides a clear boundary around Trigger.dev, Cloudflare R2, and platform APIs.
+- Avoids introducing unnecessary queue and distributed infrastructure.
 
 ### Negative Consequences
-- Architectural discipline must be maintained manually  
-- Express does not enforce module boundaries  
-- Code review and testing must prevent architectural violations  
-- Additional libraries may be required for capabilities such as dependency injection  
 
----
+- Requires C#/.NET skills and consistent code conventions.
+- Requires EF Core entity configuration and migration discipline.
+- Requires explicit integration work between ASP.NET Core and Trigger.dev.
+- Requires deployment environments to provide a compatible .NET runtime.
+- Some TypeScript-specific backend libraries and assumptions must be replaced with appropriate .NET equivalents.
 
-## Trade-offs
+### Trade-offs
 
-The project chooses **flexibility and team productivity** over the stronger framework-level conventions provided by NestJS.
-
-The architecture must compensate through:
-- Clear module boundaries  
-- Coding standards  
-- TypeScript usage  
-- Testing discipline  
-- Code review practices  
-- Dependency rules  
-- Documentation  
-
----
+The project chooses the approved C#/.NET backend direction and explicit layered boundaries over retaining the earlier TypeScript backend framework. This introduces a distinct backend language and runtime while preserving the existing TypeScript frontend.
 
 ## Implementation Requirements
 
 The backend must:
-- Use TypeScript  
-- Keep controllers thin  
-- Keep business logic in services  
-- Keep database access out of controllers  
-- Validate input at API boundaries  
-- Use centralized error handling  
-- Use centralized configuration  
-- Isolate infrastructure dependencies  
-- Use adapters for external platforms  
-- Avoid circular dependencies  
-- Avoid generic utils as a dumping ground for business logic  
-- Keep modules independently understandable  
 
----
+- Use C# and ASP.NET Core Web API.
+- Preserve the modular-monolith architecture.
+- Keep API endpoints/controllers thin.
+- Put application workflows and use cases in the Application layer.
+- Keep domain rules in the Domain layer.
+- Keep EF Core, Npgsql, provider clients, R2 access, and Trigger.dev integration in Infrastructure.
+- Define interfaces at the appropriate inner-layer boundaries.
+- Use PostgreSQL as the authoritative business-state store.
+- Use EF Core with Npgsql for PostgreSQL data access.
+- Use EF Core migrations as the sole backend schema migration mechanism.
+- Never introduce Prisma schema files or Prisma migrations into the target backend.
+- Validate external input at API boundaries and enforce business invariants in the Application/Domain layers.
+- Enforce authentication, authorization, and resource ownership on the server.
+- Preserve server-managed sessions and secure HTTP-only cookies; do not introduce JWT merely because the backend framework changed.
+- Keep OAuth provider tokens and secrets server-side.
+- Use the existing platform adapter contract for social-platform integrations.
+- Integrate Trigger.dev behind an Application-defined execution abstraction.
+- Keep Trigger.dev task payloads minimal and reload trusted business data from PostgreSQL during execution.
+- Use transactional outbox/reconciliation, version checks, idempotent claims, and bounded retry behavior for durable scheduling and execution.
+- Never claim exactly-once external publishing; reconcile ambiguous external outcomes before retrying.
+- Use xUnit and ASP.NET Core integration testing as the default backend test baseline.
+- Avoid circular dependencies and infrastructure references from Domain/Application code.
+- Avoid introducing Redis, BullMQ, Kafka, microservices, or Kubernetes as MVP1 requirements.
 
 ## Related Decisions
-- ADR-004 — BullMQ  
-- ADR-005 — Redis  
-- ADR-006 — Platform Adapter Architecture  
-- ADR-007 — API Versioning  
-- ADR-008 — Deployment Strategy  
 
----
+- ADR-001 — Authentication Strategy
+- ADR-003 — Object Storage with Cloudflare R2
+- ADR-006 — Platform Adapter Architecture
+- ADR-007 — API Versioning
+- ADR-008 — Deployment Strategy
+- ADR-009 — Trigger.dev Execution Architecture
 
 ## Supersedes
-- Any previous proposal to use NestJS as the backend framework  
+
+- Previous Hono + TypeScript backend decision.
+- Previous Express + TypeScript backend proposal.
+- Previous NestJS backend proposal.
 
 ## Superseded By
-- N/A  
+
+N/A

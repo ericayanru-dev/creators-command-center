@@ -82,11 +82,11 @@ The MVP will use the architecture established by the architecture documentation.
 The system must support:
 
 - Frontend application  
-- Backend API  
+- ASP.NET Core Web API (C#)  
 - PostgreSQL  
 - Object/media storage  
-- Redis/queue infrastructure  
-- Background workers  
+- Trigger.dev execution integration  
+- Application-owned scheduling, durable outbox, and reconciliation  
 - Platform adapters  
 - Secure OAuth/token storage  
 - Browser-independent scheduled publishing  

@@ -180,7 +180,7 @@ Queue errors occur when asynchronous work cannot be added to, retrieved from, pr
 
 ### Examples
 
-- Redis unavailable
+- Trigger.dev unavailable or execution-provider API unavailable
 - Queue connection failure
 - Job enqueue failure
 - Job acknowledgement failure
@@ -822,7 +822,7 @@ Frontend implementation must:
 DevOps/infrastructure must provide:
 
 - Database availability monitoring  
-- Redis availability monitoring  
+- Trigger.dev integration availability and execution monitoring  
 - Queue monitoring  
 - Worker health monitoring  
 - Application health checks  
@@ -863,7 +863,7 @@ Infrastructure failures must be observable and recoverable.
 - Job timeout  
 - Job retry  
 - Job exhaustion  
-- Redis failure  
+- Trigger.dev execution-provider failure  
 - Queue recovery  
 
 ## Worker Tests

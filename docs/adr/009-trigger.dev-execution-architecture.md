@@ -66,8 +66,8 @@ For multi-platform publishing, each target platform account continues to have it
 
 | Component | Responsibility |
 |---|---|
-| PostgreSQL / Prisma | Authoritative business state, Publication state, PublishingAttempt history, scheduling intent, reconciliation state, and durable operational metadata. |
-| Hono API | Authentication, authorization, validation, business-state mutations, publication scheduling/cancellation/retry requests, and provider-agnostic API responses. |
+| PostgreSQL / EF Core (Npgsql) | Authoritative business state, Publication state, PublishingAttempt history, scheduling intent, reconciliation state, and durable operational metadata. |
+| ASP.NET Core Web API | Authentication, authorization, validation, business-state mutations, publication scheduling/cancellation/retry requests, and provider-agnostic API responses. |
 | Trigger.dev | Background task execution, delayed/scheduled execution, retries, concurrency/queues, long-running workflows, and execution observability. |
 | Platform adapters | Provider authentication/token use, request formatting, publishing calls, provider-specific errors, and provider-specific rate-limit handling. |
 | Application rate limiter | Provider-specific quotas, windows, throttling, backpressure, and platform-specific limits. |
@@ -150,7 +150,7 @@ Trigger.dev provides execution-level logs, tracing, run visibility, retries, and
 - Less infrastructure to operate than BullMQ + Redis.
 - Strong durable execution model for long-running workflows.
 - Built-in retries, concurrency, scheduling, checkpointing, and observability.
-- Good alignment with the TypeScript stack and future MVP3 AI workflows.
+- Supports the approved ASP.NET Core backend while keeping execution-provider integration isolated behind an application-owned abstraction.
 
 ## 14.2 Trade-offs
 
